@@ -13,14 +13,17 @@ export default function Navbar() {
             BBXZ
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted">
-            <Link href="/#projects" className="hover:text-foreground transition-colors">
-              {lang === "zh" ? "项目" : "Projects"}
+            <Link href="/#features" className="hover:text-foreground transition-colors">
+              {lang === "zh" ? "功能" : "Features"}
             </Link>
             <Link href="/subscribe" className="hover:text-foreground transition-colors">
               Subscribe
             </Link>
             <Link href="/membership" className="hover:text-foreground transition-colors">
               {lang === "zh" ? "会员" : "Membership"}
+            </Link>
+            <Link href="/download" className="hover:text-foreground transition-colors">
+              {lang === "zh" ? "下载" : "Download"}
             </Link>
           </div>
         </div>
@@ -42,8 +45,14 @@ export default function Navbar() {
             中文
           </button>
           <Link
+            href="/download"
+            className="ml-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm px-4 py-1.5 rounded-full transition-colors font-medium"
+          >
+            {lang === "zh" ? "下载 App" : "Download"}
+          </Link>
+          <Link
             href="/subscribe"
-            className="ml-3 bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm px-4 py-1.5 rounded-full transition-colors font-medium"
+            className="bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm px-4 py-1.5 rounded-full transition-colors font-medium"
           >
             {lang === "zh" ? "立即订阅" : "Subscribe"}
           </Link>

@@ -31,7 +31,7 @@ export default function HomePage() {
       </section>
 
       {/* Feature cards */}
-      <section className="px-6 py-20 max-w-5xl mx-auto">
+      <section id="features" className="px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-3xl font-semibold text-center mb-4">产品功能</h2>
         <p className="text-neutral-500 text-center mb-14">每个功能都为真实使用场景设计</p>
 
@@ -88,6 +88,30 @@ export default function HomePage() {
             <p className="text-neutral-500 leading-relaxed">
               基于字节跳动火山引擎语音合成技术，高保真音色还原，流畅自然的语调生成。
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Download CTA */}
+      <section className="px-6 py-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-semibold mb-4">立即开始</h2>
+          <p className="text-neutral-500 mb-8">Web 直接使用，或下载 App 随时随地对话</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://flexichrono.com/app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 rounded-full bg-blue-600 text-white font-medium text-lg hover:bg-blue-700 transition"
+            >
+              🌐 打开 Web 版
+            </a>
+            <Link
+              href="/download"
+              className="px-8 py-4 rounded-full border-2 border-neutral-200 text-neutral-700 font-medium text-lg hover:border-neutral-300 transition"
+            >
+              📱 下载 App
+            </Link>
           </div>
         </div>
       </section>
