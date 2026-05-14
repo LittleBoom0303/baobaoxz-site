@@ -59,6 +59,32 @@ export default function DownloadPage() {
           </div>
         </div>
 
+        {/* macOS */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4">macOS</h2>
+          <div className="rounded-2xl border border-neutral-100 p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="font-semibold text-base mb-1">macOS App（开发中）</div>
+                <div className="text-sm text-neutral-500">
+                  原生 macOS 客户端，Safari/Chrome/Firefox 均可用 Web 版
+                </div>
+              </div>
+              <a
+                href="https://flexichrono.com/app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 px-6 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition"
+              >
+                打开 Web 版
+              </a>
+            </div>
+            <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-100 text-sm text-blue-800">
+              <strong>提示：</strong>macOS 原生客户端正在开发中，可先通过浏览器使用全部功能，功能体验与 App 一致。
+            </div>
+          </div>
+        </div>
+
         {/* iOS */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">iOS</h2>
