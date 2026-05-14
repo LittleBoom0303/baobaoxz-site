@@ -11,7 +11,7 @@ function getReturnUrl() {
 }
 
 export default function SubscribePage() {
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[2]); // 年度默认
+  const [selectedPlan, setSelectedPlan] = useState(PLANS[0]); // 年度默认
   const [selectedMethod, setSelectedMethod] = useState<"wechat" | "alipay" | "paypal">("alipay");
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("idle");
   const [orderId, setOrderId] = useState<string | null>(null);

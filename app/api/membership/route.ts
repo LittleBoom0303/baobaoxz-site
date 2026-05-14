@@ -1,42 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getMembership } from "@/lib/db";
 
-export const runtime = "nodejs";
-
-// GET /api/membership?userId=xxx
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-
-  if (!userId) {
-    return NextResponse.json({ error: "userId required" }, { status: 400 });
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const user_id = searchParams.get("user_id");
+    if (!user_id) return NextResponse.json({ error: "缺少 user_id" }, { status: 400 });
+    const m = getMembership(user_id as string);
+    if (!m) return NextResponse.json({ hasMembership: false, plan: null, expiresAt: null });
+    const mr = m as { status: string; plan_id: string; expires_at: string };
+    return NextResponse.json({
+      hasMembership: mr.status === "active",
+      plan: mr.plan_id,
+      expiresAt: mr.expires_at,
+    });
+  } catch {
+    return NextResponse.json({ error: "服务器错误" }, { status: 500 });
   }
-
-  const membership = getMembership(userId);
-  if (!membership) {
-    return NextResponse.json({ status: "inactive", membership: null });
-  }
-
-  // 检查是否过期
-  if (membership.status === "active" && membership.expires_at) {
-    const expiresAt = new Date(membership.expires_at);
-    if (expiresAt < new Date()) {
-      return NextResponse.json({
-        status: "expired",
-        membership: {
-          ...membership,
-          status: "expired",
-        },
-      });
-    }
-  }
-
-  return NextResponse.json({
-    status: membership.status,
-    membership: {
-      planId: membership.plan_id,
-      startedAt: membership.started_at,
-      expiresAt: membership.expires_at,
-    },
-  });
 }

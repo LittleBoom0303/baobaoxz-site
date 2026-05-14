@@ -1,48 +1,28 @@
-// 套餐定义
-export const PLANS = [
-  {
-    id: "monthly",
-    name: "月度会员",
-    nameEn: "Monthly",
-    price: 9.9,
-    priceDisplay: "¥9.9",
-    days: 30,
-    recommended: false,
-  },
-  {
-    id: "quarterly",
-    name: "季度会员",
-    nameEn: "Quarterly",
-    price: 55.9,
-    priceDisplay: "¥55.9",
-    days: 90,
-    recommended: false,
-  },
+// 订阅套餐定义
+export interface Plan {
+  id: string;
+  name: string;
+  price: number; // 人民币：元
+  periodDays: number;
+  features: string[];
+}
+
+export const PLANS: Plan[] = [
   {
     id: "yearly",
     name: "年度会员",
-    nameEn: "Yearly",
     price: 88,
-    priceDisplay: "¥88",
-    days: 365,
-    recommended: true,
+    periodDays: 365,
+    features: [
+      "无限文字 / 语音对话",
+      "音色克隆（30秒录音还原声音）",
+      "多个 AI 角色切换",
+      "云端聊天记录同步",
+      "跨平台 Web/App 使用",
+    ],
   },
 ];
 
-// 获取plan信息
-export function getPlan(planId: string) {
-  return PLANS.find((p) => p.id === planId);
-}
-
-// 生成订单号
-export function generateOrderId(): string {
-  const ts = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 7);
-  return `BBXZ-${ts}-${rand}`.toUpperCase();
-}
-
-// 生成user_id（与Flexichrono后端一致：user_{phone[-4:]}）
-// 若用户未登录，生成临时user_id用于匿名下单
-export function generateAnonUserId(): string {
-  return `anon_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+export function getPlan(id: string): Plan | undefined {
+  return PLANS.find((p) => p.id === id);
 }

@@ -1,83 +1,71 @@
-import { NextRequest, NextResponse } from "next/server";
-import { updateOrderStatus, activateMembership, getOrder } from "@/lib/db";
-import { getPlan } from "@/lib/pay";
-import crypto from "crypto";
+import { NextResponse } from "next/server";
+import { getOrder, upsertOrder, upsertMembership } from "@/lib/db";
+import { PLANS } from "@/lib/pay";
+import { FLEXICHRONO_API, MEMBERSHIP_CALLBACK_SECRET } from "@/lib/config";
 
-export const runtime = "nodejs";
-
-// 微信支付回调
-// 文档：https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_4_5.shtml
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.text();
-    const headers = Object.fromEntries(req.headers.entries());
-    const signature = headers["x-vercel-signature"] || headers["wechatpay-signature"];
+    // 微信支付回调（XML 格式）
+    const xmlBody = await request.text();
+    console.log("[wxpay callback]", xmlBody);
 
-    // TODO: 验签（商户号到位后实现）
-    // const verifySign = (body: string, signature: string) => {
-    //   const mchId = process.env.WXPAY_MCH_ID;
-    //   const apiKey = process.env.WXPAY_API_KEY;
-    //   const nonce = headers['wechatpay-nonce'];
-    //   const timestamp = headers['wechatpay-timestamp'];
-    //   const serial = headers['wechatpay-serial'];
-    //   const msg = `${timestamp}\n${nonce}\n${body}\n`;
-    //   // 用平台证书公钥验签
-    // };
+    // 解析微信回调 XML（简化版，实际生产需验签）
+    const getField = (xml: string, field: string) => {
+      const m = xml.match(new RegExp(`<${field}><!\\[CDATA\\[(.*?)\\]\\]></${field}>`));
+      return m ? m[1] : xml.match(new RegExp(`<${field}>(.*?)</${field}>`))?.[1] ?? "";
+    };
 
-    let payload: Record<string, unknown>;
-    try {
-      payload = JSON.parse(body);
-    } catch {
-      // 微信支付v3可能使用XML
-      payload = parseXml(body);
+    const return_code = getField(xmlBody, "return_code");
+    if (return_code !== "SUCCESS") {
+      return new NextResponse("<xml><return_code>FAIL</return_code></xml>", { headers: { "Content-Type": "text/xml" } });
     }
 
-    // 只处理支付成功事件
-    const eventType = (payload.event_type as string) || ((payload.msg as Record<string, unknown>) || {}).event_type as string || "";
-    if (eventType !== "TRANSACTION.SUCCESS" && payload.result_code !== "SUCCESS") {
-      return NextResponse.json({ code: "FAIL", message: "Not a success event" });
-    }
+    const out_trade_no = getField(xmlBody, "out_trade_no");
+    const transaction_id = getField(xmlBody, "transaction_id");
+    const trade_state = getField(xmlBody, "trade_state");
 
-    const orderNo = (payload.order_id || payload.out_trade_no || payload.transaction_id) as string;
-    if (!orderNo) {
-      return NextResponse.json({ code: "FAIL", message: "No order number" });
-    }
-
-    // 找到订单
-    const order = getOrder(orderNo);
-    if (!order) {
-      return NextResponse.json({ code: "FAIL", message: "Order not found" });
-    }
-
-    if (order.status === "paid") {
-      return NextResponse.json({ code: "SUCCESS", message: "Already processed" });
+    if (trade_state !== "SUCCESS") {
+      return new NextResponse("<xml><return_code>SUCCESS</return_code></xml>", { headers: { "Content-Type": "text/xml" } });
     }
 
     // 更新订单状态
-    updateOrderStatus(orderNo, "paid");
+    const order = getOrder(out_trade_no) as { user_id: string; plan_id: string; status: string } | undefined;
+    if (!order) {
+      return new NextResponse("<xml><return_code>FAIL</return_code><return_msg>Order not found</return_msg></xml>", { headers: { "Content-Type": "text/xml" } });
+    }
+    if (order.status !== "paid") {
+      upsertOrder({ ...order, status: "paid", paid_at: new Date().toISOString() });
 
-    // 激活会员
-    const plan = getPlan(order.product_id);
-    if (plan) {
-      activateMembership(order.user_id, order.product_id, plan.days);
+      // 开通会员
+      const plan = PLANS.find((p) => p.id === order.plan_id) ?? PLANS[0];
+      const starts_at = new Date();
+      const expires_at = new Date(starts_at.getTime() + plan.periodDays * 24 * 60 * 60 * 1000);
+      upsertMembership({
+        user_id: order.user_id,
+        plan_id: plan.id,
+        status: "active",
+        starts_at: starts_at.toISOString(),
+        expires_at: expires_at.toISOString(),
+      });
+
+      // 通知 Flexichrono 后端
+      try {
+        await fetch(`${FLEXICHRONO_API}/api/v1/membership/grant`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-callback-secret": MEMBERSHIP_CALLBACK_SECRET,
+          },
+          body: JSON.stringify({ user_id: order.user_id, plan: plan.id, expires_at: expires_at.toISOString() }),
+        });
+      } catch (e) {
+        console.error("[wxpay] Flexichrono grant failed:", e);
+      }
     }
 
-    console.log(`[wxpay callback] Order ${orderNo} paid, membership activated for user ${order.user_id}`);
-    return NextResponse.json({ code: "SUCCESS", message: "OK" });
-  } catch (err) {
-    console.error("[wxpay callback]", err);
-    return NextResponse.json({ code: "FAIL", message: "Internal error" });
+    return new NextResponse("<xml><return_code>SUCCESS</return_code></xml>", { headers: { "Content-Type": "text/xml" } });
+  } catch (e) {
+    console.error("[wxpay callback error]", e);
+    return new NextResponse("<xml><return_code>FAIL</return_code></xml>", { headers: { "Content-Type": "text/xml" } });
   }
-}
-
-function parseXml(xml: string): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  const regex = /<(\w+)><!\[CDATA\[([^\]]*)\]\]><\/\1>|<(\w+)>([^<]*)<\/\3>/g;
-  let match;
-  while ((match = regex.exec(xml)) !== null) {
-    const key = match[1] || match[3];
-    const value = match[2] || match[4];
-    result[key] = value;
-  }
-  return result;
 }
