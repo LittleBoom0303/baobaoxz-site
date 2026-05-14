@@ -36,104 +36,132 @@ const projects = [
 const faqs = [
   {
     q: "主要涵盖哪些类型的项目？",
-    qEn: "What kind of projects do you cover?",
     a: "涵盖 AI 编程、终端工具、API 开发、数据处理、自动化等实用项目。每个项目都经过实战验证，可直接使用。",
   },
   {
     q: "多久更新一次？",
-    qEn: "How often are new projects added?",
     a: "每周更新 1-3 个新项目，老项目持续维护迭代。订阅用户可随时查看全部历史项目。",
   },
   {
     q: "可以取消吗？",
-    qEn: "Can I cancel?",
     a: "可以。随时取消，取消后会员资格持续到当前计费周期结束。",
   },
   {
     q: "适合谁？",
-    qEn: "Who is this for?",
     a: "开发者、创业者、独立开发者。任何需要快速找到靠谱工具和项目的人。",
+  },
+  {
+    q: "如何支付？",
+    a: "支持微信支付、支付宝、PayPal。扫码即可开通，支付后会员立即生效。",
   },
 ];
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="bg-white">
       {/* Hero */}
-      <section className="py-24 text-center">
+      <section className="py-28 text-center">
         <div className="container">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Stay Ahead. Pick the Right Ones.
-            <br />
-            <span className="text-gray-400">省时间，选对的。</span>
+          <p className="text-sm font-semibold tracking-wide text-muted uppercase mb-6">
+            BBXZ — 发现值得花时间的项目
+          </p>
+          <h1 className="text-5xl md:text-7xl font-semibold tracking-tight mb-6 leading-tight">
+            省时间，<br className="hidden md:block" />
+            选对的。
           </h1>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-            <Link
-              href="/#projects"
-              className="border border-[#333] hover:border-[#555] text-white px-6 py-3 rounded-full transition-colors"
-            >
-              看项目 →
+          <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
+            每周更新实用项目，涵盖 AI 编程、终端工具、API 开发。
+            <br />
+            经过验证的设计方案，直接拿来用。
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/subscribe" className="btn-primary">
+              立即订阅 ¥88/年
             </Link>
-            <Link
-              href="/subscribe"
-              className="bg-[#10b981] hover:bg-[#059669] text-white px-6 py-3 rounded-full transition-colors font-medium"
-            >
-              订阅全部 ¥9.9/月
+            <Link href="/#projects" className="btn-secondary">
+              查看项目
             </Link>
           </div>
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="h-px bg-[rgba(0,0,0,0.06)]" />
+
       {/* Why */}
-      <section className="py-20 border-t border-[#1f1f1f]">
+      <section className="py-28">
         <div className="container">
-          <h2 className="text-2xl font-bold mb-12 text-center">为什么值得花时间？</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <p className="text-sm font-semibold tracking-wide text-muted uppercase text-center mb-4">
+            为什么选择 BBXZ
+          </p>
+          <h2 className="text-3xl md:text-4xl font-semibold text-center mb-16 tracking-tight">
+            只选真正靠谱的
+          </h2>
+          <div className="grid md:grid-cols-3 gap-12">
             {[
-              { title: "去噪音", titleEn: "Filter the Noise", body: "只选真正靠谱的项目，不凑数。" },
-              { title: "快速判断", titleEn: "Fast Decision", body: "经过验证的设计方案，直接拿来用。" },
-              { title: "拿来就用", titleEn: "Ready to Use", body: "代码、配置、规则全配套，上手即用。" },
+              {
+                title: "去噪音",
+                body: "只选经过验证的项目，不凑数。每个推荐都有实战依据。",
+              },
+              {
+                title: "快速判断",
+                body: "经过验证的设计方案，代码+配置+规则全配套，上手即用。",
+              },
+              {
+                title: "持续维护",
+                body: "项目持续迭代，更新修复不用你操心。订阅期内全部免费。",
+              },
             ].map((item) => (
-              <div key={item.title} className="p-6 rounded-xl bg-[#111] border border-[#1f1f1f]">
-                <h3 className="font-semibold mb-2">{item.titleEn}</h3>
-                <p className="text-gray-400 text-sm">{item.body}</p>
+              <div key={item.title} className="text-center">
+                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+                <p className="text-muted leading-relaxed">{item.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="h-px bg-[rgba(0,0,0,0.06)]" />
+
       {/* Projects */}
-      <section id="projects" className="py-20 border-t border-[#1f1f1f]">
+      <section id="projects" className="py-28">
         <div className="container">
-          <h2 className="text-2xl font-bold mb-8">最新项目</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-4 tracking-tight">
+            最新项目
+          </h2>
+          <p className="text-muted mb-12 text-lg">
+            部分项目仅对订阅用户开放
+          </p>
+          <div className="grid md:grid-cols-2 gap-5">
             {projects.map((p) => (
               <div
                 key={p.name}
-                className="p-6 rounded-xl bg-[#111] border border-[#1f1f1f] relative"
+                className="apple-card relative flex flex-col justify-between"
               >
                 {p.locked && (
-                  <span className="absolute top-4 right-4 text-xs bg-[#1f1f1f] text-gray-500 px-2 py-1 rounded">
-                    🔒 {p.badge}
+                  <span className="absolute top-6 right-6 text-xs font-medium text-muted bg-[rgba(0,0,0,0.04)] px-3 py-1 rounded-full">
+                    🔒 订阅专属
                   </span>
                 )}
-                <h3 className="font-semibold mb-2">{p.name}</h3>
-                <p className="text-gray-400 text-sm mb-3">{p.desc}</p>
-                <p className="text-gray-600 text-xs mb-4">{p.descZh}</p>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 pr-16">{p.name}</h3>
+                  <p className="text-muted text-sm mb-2 leading-relaxed">{p.desc}</p>
+                  <p className="text-[rgba(0,0,0,0.4)] text-xs">{p.descZh}</p>
+                </div>
                 {p.locked ? (
                   <Link
                     href="/subscribe"
-                    className="inline-block text-[#10b981] hover:text-[#059669] text-sm font-medium transition-colors"
+                    className="mt-6 inline-flex items-center gap-1 text-[#0071e3] hover:text-[#0077ed] text-sm font-medium transition-colors"
                   >
-                    Subscribe $9.9/mo →
+                    订阅查看 →
                   </Link>
                 ) : (
                   <Link
                     href="#"
-                    className="inline-block text-gray-400 hover:text-white text-sm transition-colors"
+                    className="mt-6 inline-flex items-center gap-1 text-[#0071e3] hover:text-[#0077ed] text-sm font-medium transition-colors"
                   >
-                    Details → 查看详情 →
+                    查看详情 →
                   </Link>
                 )}
               </div>
@@ -142,49 +170,72 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Divider */}
+      <div classyle={{ height: "1px", background: "rgba(0,0,0,0.06)" }} />
+
       {/* Subscribe CTA */}
-      <section className="py-20 border-t border-[#1f1f1f]">
+      <section className="py-28">
         <div className="container text-center">
-          <h2 className="text-2xl font-bold mb-4">
-            订阅解锁全部项目
+          <h2 className="text-3xl md:text-4xl font-semibold mb-4 tracking-tight">
+            解锁全部项目
           </h2>
-          <p className="text-gray-400 mb-8">
-            $9.9/月，随时取消。微信/支付宝/PayPal 均支持。
+          <p className="text-muted text-lg mb-10">
+            年度会员 ¥88，随时取消。微信 · 支付宝 · PayPal
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/subscribe"
-              className="bg-[#10b981] hover:bg-[#059669] text-white px-8 py-3 rounded-full transition-colors font-semibold"
-            >
+            <Link href="/subscribe" className="btn-primary">
               立即订阅
             </Link>
-            <Link
-              href="/membership"
-              className="border border-[#333] hover:border-[#555] text-white px-6 py-3 rounded-full transition-colors"
-            >
+            <Link href="/membership" className="btn-secondary">
               查询会员状态
             </Link>
           </div>
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="h-px bg-[rgba(0,0,0,0.06)]" />
+
       {/* FAQ */}
-      <section className="py-20 border-t border-[#1f1f1f]">
+      <section className="py-28">
         <div className="container max-w-2xl">
-          <h2 className="text-2xl font-bold mb-8">常见问题</h2>
-          <div className="space-y-4">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-12 tracking-tight">
+            常见问题
+          </h2>
+          <div className="space-y-1">
             {faqs.map((faq) => (
-              <details key={faq.q} className="group border border-[#1f1f1f] rounded-lg p-4">
-                <summary className="font-medium text-sm flex items-center justify-between">
-                  <span>{faq.qEn}</span>
-                  <span className="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+              <details key={faq.q} className="group">
+                <summary className="flex items-center justify-between py-4 text-lg font-medium cursor-pointer list-none">
+                  <span>{faq.q}</span>
+                  <span className="text-muted text-sm group-open:rotate-180 transition-transform duration-200 ml-4">▲</span>
                 </summary>
-                <p className="text-gray-400 text-sm mt-3">{faq.a}</p>
+                <div className="h-px bg-[rgba(0,0,0,0.06)]" />
+                <p className="text-muted py-4 leading-relaxed">{faq.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="footer py-10 mt-8">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-muted">
+            © 2026 BBXZ. All rights reserved.
+          </div>
+          <div className="flex items-center gap-8">
+            <Link href="/subscribe" className="text-sm text-muted hover:text-foreground transition-colors">
+              Subscribe
+            </Link>
+            <Link href="/membership" className="text-sm text-muted hover:text-foreground transition-colors">
+              会员
+            </Link>
+            <a href="mailto:contact@baobaoxz.com" className="text-sm text-muted hover:text-foreground transition-colors">
+              Contact
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

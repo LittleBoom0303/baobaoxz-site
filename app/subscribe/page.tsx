@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { PLANS } from "@/lib/pay";
 
@@ -17,7 +18,6 @@ export default function SubscribePage() {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [pollTimer, setPollTimer] = useState<NodeJS.Timeout | null>(null);
   const [userId] = useState(() => {
-    // 简单的匿名用户ID，存localStorage
     if (typeof window !== "undefined") {
       let uid = localStorage.getItem("bbxz_uid");
       if (!uid) {
@@ -29,7 +29,6 @@ export default function SubscribePage() {
     return "";
   });
 
-  // 轮询订单状态
   const pollOrder = useCallback(
     async (oid: string) => {
       try {
@@ -57,7 +56,6 @@ export default function SubscribePage() {
     [userId, pollTimer]
   );
 
-  // 创建订单
   const handleSubscribe = async () => {
     setOrderStatus("pending");
     setQrUrl(null);
@@ -85,11 +83,9 @@ export default function SubscribePage() {
       // TODO: 真实二维码（商户号到位后）
       // if (data.qrUrl) setQrUrl(data.qrUrl);
 
-      // 启动轮询（每3秒一次，最多10分钟）
       const timer = setInterval(() => pollOrder(data.orderId), 3000);
       setPollTimer(timer);
 
-      // 10分钟后自动停止
       setTimeout(() => {
         clearInterval(timer);
         if (orderStatus === "pending") setOrderStatus("idle");
@@ -107,141 +103,212 @@ export default function SubscribePage() {
   }, [pollTimer]);
 
   return (
-    <div className="py-16">
-      <div className="container max-w-4xl">
-        <h1 className="text-3xl font-bold text-center mb-2">订阅 BBXZ 会员</h1>
-        <p className="text-gray-400 text-center mb-12">
-          解锁全部项目，随时取消。支付后会员立即生效。
-        </p>
+    <div className="bg-white min-h-screen">
+      {/* Header */}
+      <div className="py-20 text-center">
+        <div className="container">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
+            选择你的会员计划
+          </h1>
+          <p className="text-muted text-lg max-w-md mx-auto">
+            解锁全部项目，随时取消。支付后会员立即生效。
+          </p>
+        </div>
+      </div>
 
-        {/* 套餐选择 */}
-        <div className="grid md:grid-cols-3 gap-4 mb-10">
-          {PLANS.map((plan) => (
+      {/* Plans */}
+      <div className="container max-w-5xl mb-12">
+        <div className="grid md:grid-cols-3 gap-4">
+          {PLANS.map((plan) => {
+            const isYearlyValue = plan.id === "yearly";
+            return (
+              <button
+                key={plan.id}
+                onClick={() => setSelectedPlan(plan)}
+                className={`plan-card text-left relative ${
+                  selectedPlan.id === plan.id ? "selected" : ""
+                }`}
+              >
+                {plan.recommended && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0071e3] text-white text-xs font-medium px-3 py-0.5 rounded-full whitespace-nowrap">
+                    最划算
+                  </div>
+                )}
+                <div className="mb-6">
+                  <h3 className="text-base font-semibold mb-0.5">{plan.nameEn}</h3>
+                  <p className="text-sm text-muted">{plan.name}</p>
+                </div>
+                <div className="mb-6">
+                  <span className="text-4xl font-semibold tracking-tight">
+                    {plan.priceDisplay}
+                  </span>
+                  <span className="text-muted text-sm ml-1">
+                    /{plan.id === "yearly" ? "年" : plan.id === "quarterly" ? "季度" : "月"}
+                  </span>
+                </div>
+                <div className="h-px bg-[rgba(0,0,0,0.06)] mb-6" />
+                <ul className="space-y-2">
+                  <li className="text-sm text-muted flex items-center gap-2">
+                    <span className="text-[#0071e3] text-xs">✓</span>
+                    解锁全部项目
+                  </li>
+                  <li className="text-sm text-muted flex items-center gap-2">
+                    <span className="text-[#0071e3] text-xs">✓</span>
+                    持续更新维护
+                  </li>
+                  <li className="text-sm text-muted flex items-center gap-2">
+                    <span className="text-[#0071e3] text-xs">✓</span>
+                    {isYearlyValue ? "最优惠，相当于 ¥7.3/月" : `持续 ${plan.days} 天`}
+                  </li>
+                </ul>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Payment methods */}
+      <div className="container max-w-3xl mb-12">
+        <h2 className="text-2xl font-semibold mb-1">支付方式</h2>
+        <p className="text-muted text-sm mb-6">选择你最方便的支付方式</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            {
+              id: "alipay",
+              label: "支付宝",
+              sub: "推荐",
+              color: "#00A1E9",
+            },
+            {
+              id: "wechat",
+              label: "微信支付",
+              sub: "便捷安全",
+              color: "#07C160",
+            },
+            {
+              id: "paypal",
+              label: "PayPal",
+              sub: "支持Visa/MC",
+              color: "#003087",
+            },
+          ].map((m) => (
             <button
-              key={plan.id}
-              onClick={() => setSelectedPlan(plan)}
-              className={`p-6 rounded-xl border text-left transition-all ${
-                selectedPlan.id === plan.id
-                  ? "border-[#10b981] bg-[#0d2017]"
-                  : "border-[#222] bg-[#111] hover:border-[#333]"
-              }`}
+              key={m.id}
+              onClick={() => setSelectedMethod(m.id as "alipay" | "wechat" | "paypal")}
+              className={`pay-method-btn ${selectedMethod === m.id ? "selected" : ""}`}
             >
-              {plan.recommended && (
-                <span className="inline-block text-xs bg-[#10b981] text-white px-2 py-0.5 rounded-full mb-2">
-                  推荐
-                </span>
-              )}
-              <h3 className="font-semibold mb-1">{plan.nameEn}</h3>
-              <p className="text-gray-400 text-xs mb-3">{plan.name}</p>
-              <div className="text-2xl font-bold">
-                {plan.priceDisplay}
-                <span className="text-sm text-gray-500 font-normal">/{plan.days}天</span>
+              {/* Icon */}
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                style={{ background: m.color }}
+              >
+                {m.id === "alipay" ? "支" : m.id === "wechat" ? "微" : "P"}
               </div>
+              <div className="text-left">
+                <div className="text-sm font-medium">{m.label}</div>
+                <div className="text-xs text-muted">{m.sub}</div>
+              </div>
+              {selectedMethod === m.id && (
+                <div className="ml-auto">
+                  <div className="w-5 h-5 rounded-full bg-[#0071e3] flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                </div>
+              )}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* 支付方式 */}
-        <div className="mb-10">
-          <h2 className="font-semibold mb-4">支付方式</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { id: "alipay", label: "支付宝", icon: "💙" },
-              { id: "wechat", label: "微信支付", icon: "🟢" },
-              { id: "paypal", label: "PayPal", icon: "🟣" },
-            ].map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setSelectedMethod(m.id as "alipay" | "wechat" | "paypal")}
-                className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
-                  selectedMethod === m.id
-                    ? "border-[#10b981] bg-[#0d2017]"
-                    : "border-[#222] bg-[#111] hover:border-[#333]"
-                }`}
-              >
-                <span className="text-2xl">{m.icon}</span>
-                <span className="text-sm font-medium">{m.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* CTA */}
+      <div className="container max-w-3xl text-center mb-16">
+        {orderStatus === "idle" && (
+          <button onClick={handleSubscribe} className="btn-primary text-base px-12 py-4">
+            立即开通 {selectedPlan.priceDisplay}
+          </button>
+        )}
 
-        {/* 支付按钮 / 二维码 */}
-        <div className="text-center">
-          {orderStatus === "idle" && (
-            <button
-              onClick={handleSubscribe}
-              className="bg-[#10b981] hover:bg-[#059669] text-white px-10 py-4 rounded-full text-lg font-semibold transition-colors"
-            >
-              立即订阅 {selectedPlan.priceDisplay}
-            </button>
-          )}
-
-          {orderStatus === "pending" && (
-            <div className="space-y-4">
-              <div className="inline-flex flex-col items-center gap-3 p-6 bg-[#111] border border-[#222] rounded-xl">
-                <div className="w-8 h-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-400 text-sm">等待支付… 请打开{selectedMethod === "alipay" ? "支付宝" : selectedMethod === "wechat" ? "微信" : "PayPal"}扫码</p>
-                {orderId && (
-                  <p className="text-xs text-gray-600">订单号：{orderId}</p>
-                )}
-              </div>
-
-              {/* TODO: 真实二维码（商户号到位后显示） */}
-              {qrUrl && (
-                <div className="qr-container inline-block mt-4">
-                  {/* <img src={qrUrl} alt="payment QR" width={200} /> */}
-                </div>
+        {orderStatus === "pending" && (
+          <div className="inline-flex flex-col items-center gap-4 p-8">
+            <div className="w-8 h-8 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin" />
+            <div>
+              <p className="font-medium mb-1">等待支付</p>
+              <p className="text-sm text-muted">
+                请打开{selectedMethod === "alipay" ? "支付宝" : selectedMethod === "wechat" ? "微信" : "PayPal"}扫码支付
+              </p>
+              {orderId && (
+                <p className="text-xs text-muted mt-2">订单号：{orderId}</p>
               )}
-
-              <button
-                onClick={() => {
-                  setOrderStatus("idle");
-                  if (pollTimer) clearInterval(pollTimer);
-                }}
-                className="block mx-auto text-gray-500 hover:text-white text-sm transition-colors mt-3"
-              >
-                取消
-              </button>
             </div>
-          )}
+            {qrUrl && (
+              <div className="qr-container">
+                <img src={qrUrl} alt="payment QR" width={200} />
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setOrderStatus("idle");
+                if (pollTimer) clearInterval(pollTimer);
+              }}
+              className="text-sm text-muted hover:text-foreground transition-colors mt-2"
+            >
+              取消
+            </button>
+          </div>
+        )}
 
-          {orderStatus === "paid" && (
-            <div className="inline-flex flex-col items-center gap-3 p-8 bg-[#0d2017] border border-[#10b981] rounded-xl">
-              <span className="text-4xl">✅</span>
-              <h3 className="text-xl font-bold text-[#34d399]">支付成功！</h3>
-              <p className="text-gray-400 text-sm">会员已激活，欢迎使用 BBXZ</p>
-              <a
-                href="/membership"
-                className="mt-2 bg-[#10b981] hover:bg-[#059669] text-white px-6 py-2 rounded-full text-sm font-medium transition-colors"
-              >
-                查看会员权益
-              </a>
+        {orderStatus === "paid" && (
+          <div className="inline-flex flex-col items-center gap-4 p-10">
+            <div className="w-16 h-16 rounded-full bg-[#d1fae5] flex items-center justify-center">
+              <span className="text-3xl">✓</span>
             </div>
-          )}
-
-          {orderStatus === "failed" && (
-            <div className="inline-flex flex-col items-center gap-3 p-8 bg-[#1f0d0d] border border-[#991b1b] rounded-xl">
-              <span className="text-4xl">❌</span>
-              <h3 className="text-xl font-bold text-red-400">下单失败</h3>
-              <p className="text-gray-400 text-sm">请稍后重试，或联系客服</p>
-              <button
-                onClick={() => setOrderStatus("idle")}
-                className="mt-2 border border-[#333] hover:border-[#555] text-white px-6 py-2 rounded-full text-sm transition-colors"
-              >
-                重试
-              </button>
+            <div>
+              <h3 className="text-2xl font-semibold mb-1">支付成功</h3>
+              <p className="text-muted">会员已开通，欢迎使用 BBXZ</p>
             </div>
-          )}
-        </div>
+            <Link href="/membership" className="btn-primary mt-2">
+              查看会员权益
+            </Link>
+          </div>
+        )}
 
-        {/* 提示 */}
-        <p className="text-center text-gray-600 text-xs mt-8">
-          {selectedMethod === "wechat" || selectedMethod === "alipay"
-            ? "微信/支付宝支付由官方通道保障，资金直达商户账户，安全合规。"
-            : "PayPal支付由PayPal保障，支持Visa/MasterCard。"}
+        {orderStatus === "failed" && (
+          <div className="inline-flex flex-col items-center gap-4 p-10">
+            <div className="w-16 h-16 rounded-full bg-[#fee2e2] flex items-center justify-center">
+              <span className="text-3xl">✕</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold mb-1">下单失败</h3>
+              <p className="text-muted">请稍后重试，或联系客服</p>
+            </div>
+            <button onClick={() => setOrderStatus("idle")} className="btn-secondary mt-2">
+              重试
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Trust note */}
+      <div className="text-center pb-16">
+        <p className="text-xs text-[rgba(0,0,0,0.35)]">
+          支付安全由微信支付、支付宝、PayPal 官方保障，资金直达商户账户
         </p>
       </div>
+
+      {/* Footer */}
+      <footer className="footer py-10 mt-auto">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-muted">© 2026 BBXZ. All rights reserved.</div>
+          <div className="flex items-center gap-8">
+            <Link href="/membership" className="text-sm text-muted hover:text-foreground transition-colors">
+              会员
+            </Link>
+            <a href="mailto:contact@baobaoxz.com" className="text-sm text-muted hover:text-foreground transition-colors">
+              Contact
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

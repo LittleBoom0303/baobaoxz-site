@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --card: #111111;
-  --card-border: #222222;
+  --background: #ffffff;
+  --foreground: #1d1d1f;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --card: #f5f5f7;
+  --card-border: #d2d2d7;
+  --muted: #86868b;
+  --surface: #fbfbfd;
 }
 
 @theme inline {
@@ -16,6 +18,8 @@
   --color-accent-hover: var(--accent-hover);
   --color-card: var(--card);
   --color-card-border: var(--card-border);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -31,9 +35,11 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -42,7 +48,7 @@ a {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 980px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -62,6 +68,7 @@ details summary::-webkit-details-marker {
   border-radius: 12px;
   padding: 16px;
   display: inline-block;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
 /* Status badge */
@@ -75,10 +82,113 @@ details summary::-webkit-details-marker {
   font-weight: 500;
 }
 .badge-active {
-  background: #064e3b;
-  color: #34d399;
+  background: #d1fae5;
+  color: #065f46;
 }
 .badge-inactive {
-  background: #1f1f1f;
-  color: #888;
+  background: #f5f5f5;
+  color: #86868b;
+}
+
+/* Apple-style card */
+.apple-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Apple-style button */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  padding: 0.875rem 2rem;
+  border-radius: 980px;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: scale(1.02);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  padding: 0.875rem 2rem;
+  border-radius: 980px;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+  display: inline-block;
+  cursor: pointer;
+  border: 1.5px solid var(--accent);
+}
+.btn-secondary:hover {
+  opacity: 0.7;
+}
+
+/* Apple-style plan card */
+.plan-card {
+  background: var(--surface);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 2rem 1.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.plan-card:hover {
+  border-color: rgba(0,0,0,0.15);
+}
+.plan-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Apple-style payment method button */
+.pay-method-btn {
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.pay-method-btn:hover {
+  border-color: rgba(0,0,0,0.2);
+}
+.pay-method-btn.selected {
+  border-color: var(--accent);
+  background: rgba(0,113,227,0.04);
+}
+
+/* Navbar */
+.navbar {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Footer */
+.footer {
+  background: var(--surface);
+  border-top: 1px solid rgba(0,0,0,0.06);
+  color: var(--muted);
+}
+
+/* Prose */
+.text-muted {
+  color: var(--muted);
 }
