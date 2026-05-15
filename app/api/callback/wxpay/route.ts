@@ -21,7 +21,6 @@ export async function POST(request: Request) {
     }
 
     const out_trade_no = getField(xmlBody, "out_trade_no");
-    const transaction_id = getField(xmlBody, "transaction_id");
     const trade_state = getField(xmlBody, "trade_state");
 
     if (trade_state !== "SUCCESS") {
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
       return new NextResponse("<xml><return_code>FAIL</return_code><return_msg>Order not found</return_msg></xml>", { headers: { "Content-Type": "text/xml" } });
     }
     if (order.status !== "paid") {
-      upsertOrder({ ...order, status: "paid", paid_at: new Date().toISOString() });
+      upsertOrder({ ...order, status: "paid", paid_at: new Date().toISOString() } as Parameters<typeof upsertOrder>[0]);
 
       // 开通会员
       const plan = PLANS.find((p) => p.id === order.plan_id) ?? PLANS[0];

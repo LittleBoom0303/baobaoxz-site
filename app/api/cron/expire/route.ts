@@ -9,7 +9,7 @@ export async function GET() {
     let count = 0;
     for (const m of expired) {
       // 更新本地状态
-      upsertMembership({ ...m, status: "expired" });
+      upsertMembership({ ...m, status: "expired", starts_at: m.expires_at });
       // 通知 Flexichrono 撤销会员
       try {
         await fetch(`${FLEXICHRONO_API}/api/v1/membership/revoke`, {

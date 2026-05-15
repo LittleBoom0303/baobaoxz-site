@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log("[alipay callback]", body);
 
-    const { out_trade_no, trade_status, trade_no } = body;
+    const { out_trade_no, trade_status } = body;
     if (!out_trade_no) {
       return NextResponse.json({ error: "缺少订单号" }, { status: 400 });
     }
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     if (order.status !== "paid") {
-      upsertOrder({ ...order, status: "paid", paid_at: new Date().toISOString() });
+      upsertOrder({ ...order, status: "paid", paid_at: new Date().toISOString() } as Parameters<typeof upsertOrder>[0]);
 
       const plan = PLANS.find((p) => p.id === order.plan_id) ?? PLANS[0];
       const starts_at = new Date();

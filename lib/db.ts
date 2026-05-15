@@ -1,17 +1,17 @@
 import path from "path";
+import Database from "better-sqlite3";
 import type { SQLiteDB } from "@/types/db";
 
 let _db: SQLiteDB | null = null;
 
-export function getDb(): SQLiteDB {
-  if (_db) return _db;
-  // Vercel serverless: /tmp 是唯一可写目录
-  const dbPath = process.env.VERCEL ? "/tmp/flexichrono_pay.db" : path.join(process.cwd(), "pay.db");
-  // dynamic import to avoid build errors in Next.js
-  const Database = require("better-sqlite3");
+function openDb(): SQLiteDB {
+  // Vercel serverless: /tmp is the only writable directory
+  const dbPath = process.env.VERCEL
+    ? "/tmp/flexichrono_pay.db"
+    : path.join(process.cwd(), "pay.db");
   const db = new Database(dbPath) as SQLiteDB;
   db.pragma("journal_mode = WAL");
-  // orders 表
+  // orders table
   db.exec(`
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
@@ -23,7 +23,7 @@ export function getDb(): SQLiteDB {
       paid_at TEXT
     );
   `);
-  // memberships 表
+  // memberships table
   db.exec(`
     CREATE TABLE IF NOT EXISTS memberships (
       user_id TEXT PRIMARY KEY,
@@ -35,8 +35,13 @@ export function getDb(): SQLiteDB {
       contract_id TEXT
     );
   `);
-  _db = db;
   return db;
+}
+
+export function getDb(): SQLiteDB {
+  if (_db) return _db;
+  _db = openDb();
+  return _db;
 }
 
 export function getOrder(id: string) {
@@ -55,16 +60,30 @@ export function upsertOrder(order: {
   const db = getDb();
   const existing = getOrder(order.id);
   if (existing) {
-    db.prepare("UPDATE orders SET status=?, paid_at=? WHERE id=?").run(order.status, order.paid_at ?? null, order.id);
+    db.prepare("UPDATE orders SET status=?, paid_at=? WHERE id=?").run(
+      order.status,
+      order.paid_at ?? null,
+      order.id
+    );
   } else {
-    db.prepare("INSERT INTO orders (id,user_id,plan_id,amount,status,created_at,paid_at) VALUES (?,?,?,?,?,?,?)").run(
-      order.id, order.user_id, order.plan_id, order.amount, order.status, order.created_at, order.paid_at ?? null
+    db.prepare(
+      "INSERT INTO orders (id,user_id,plan_id,amount,status,created_at,paid_at) VALUES (?,?,?,?,?,?,?)"
+    ).run(
+      order.id,
+      order.user_id,
+      order.plan_id,
+      order.amount,
+      order.status,
+      order.created_at,
+      order.paid_at ?? null
     );
   }
 }
 
 export function getMembership(userId: string) {
-  return getDb().prepare("SELECT * FROM memberships WHERE user_id = ?").get(userId);
+  return getDb()
+    .prepare("SELECT * FROM memberships WHERE user_id = ?")
+    .get(userId);
 }
 
 export function upsertMembership(membership: {
@@ -79,19 +98,37 @@ export function upsertMembership(membership: {
   const db = getDb();
   const existing = getMembership(membership.user_id);
   if (existing) {
-    db.prepare("UPDATE memberships SET plan_id=?,status=?,starts_at=?,expires_at=?,auto_renew=?,contract_id=? WHERE user_id=?").run(
-      membership.plan_id, membership.status, membership.starts_at, membership.expires_at,
-      membership.auto_renew ?? 0, membership.contract_id ?? null, membership.user_id
+    db.prepare(
+      "UPDATE memberships SET plan_id=?,status=?,starts_at=?,expires_at=?,auto_renew=?,contract_id=? WHERE user_id=?"
+    ).run(
+      membership.plan_id,
+      membership.status,
+      membership.starts_at,
+      membership.expires_at,
+      membership.auto_renew ?? 0,
+      membership.contract_id ?? null,
+      membership.user_id
     );
   } else {
-    db.prepare("INSERT INTO memberships (user_id,plan_id,status,starts_at,expires_at,auto_renew,contract_id) VALUES (?,?,?,?,?,?,?)").run(
-      membership.user_id, membership.plan_id, membership.status, membership.starts_at, membership.expires_at,
-      membership.auto_renew ?? 0, membership.contract_id ?? null
+    db.prepare(
+      "INSERT INTO memberships (user_id,plan_id,status,starts_at,expires_at,auto_renew,contract_id) VALUES (?,?,?,?,?,?,?)"
+    ).run(
+      membership.user_id,
+      membership.plan_id,
+      membership.status,
+      membership.starts_at,
+      membership.expires_at,
+      membership.auto_renew ?? 0,
+      membership.contract_id ?? null
     );
   }
 }
 
 export function getExpiredMemberships() {
   const now = new Date().toISOString();
-  return getDb().prepare("SELECT * FROM memberships WHERE status='active' AND expires_at <= ?").all(now);
+  return getDb()
+    .prepare(
+      "SELECT * FROM memberships WHERE status='active' AND expires_at <= ?"
+    )
+    .all(now);
 }

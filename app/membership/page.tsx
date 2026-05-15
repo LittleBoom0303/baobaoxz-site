@@ -16,7 +16,6 @@ export default function MembershipPage() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"query" | "result">("query");
   const [error, setError] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [codeLoading, setCodeLoading] = useState(false);
 
@@ -29,7 +28,6 @@ export default function MembershipPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
       });
-      setCodeSent(true);
       setCountdown(60);
     } finally {
       setCodeLoading(false);
@@ -42,8 +40,13 @@ export default function MembershipPage() {
     setError("");
     try {
       const user_id = `user_${phone.slice(-4)}`;
-      await new Promise((r) => setTimeout(r, 800));
-      setStatus({ hasMembership: true, plan: "yearly", expiresAt: "2027-05-14T00:00:00Z" });
+      const res = await fetch(`/api/membership?user_id=${user_id}`);
+      const data = await res.json();
+      setStatus({
+        hasMembership: data.hasMembership ?? false,
+        plan: data.plan ?? null,
+        expiresAt: data.expiresAt ?? null,
+      });
       setStep("result");
     } catch {
       setError("查询失败，请稍后重试");
@@ -131,7 +134,7 @@ export default function MembershipPage() {
                   <div className="flex justify-between items-center py-3 border-b border-neutral-50">
                     <span className="text-sm text-neutral-500">会员计划</span>
                     <span className="font-medium">
-                      {status.plan === "yearly" ? "年度会员" : status.plan}
+                      {status.plan === "yearly" ? "年度会员" : status.plan === "quarterly" ? "季度会员" : status.plan === "monthly" ? "月度会员" : status.plan}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-3">
