@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const user_id = `user_${phone?.slice(-4) || "0000"}`;
     const description = `Flexichrono ${plan.name}`;
 
-    upsertOrder({
+    await upsertOrder({
       id: order_id,
       user_id,
       plan_id: plan.id,

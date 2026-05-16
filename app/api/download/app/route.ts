@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
 // APK 文件路径（构建后放到 public/app/ 目录，或上传到 CDN）
@@ -14,12 +14,12 @@ export async function GET() {
 
   // 本地文件（开发/演示）
   if (existsSync(APK_LOCAL_PATH)) {
-    const file = await fetch(`file://${APK_LOCAL_PATH}`).then((r) => r.blob());
-    return new NextResponse(file, {
+    const fileBuffer = readFileSync(APK_LOCAL_PATH);
+    return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/vnd.android.package-archive",
         "Content-Disposition": 'attachment; filename="Flexichrono.apk"',
-        "Content-Length": String(file.size),
+        "Content-Length": String(fileBuffer.length),
         "Cache-Control": "public, max-age=86400",
       },
     });

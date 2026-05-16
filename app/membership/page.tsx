@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { motion } from "framer-motion";
 
 export default function MembershipPage() {
   const [phone, setPhone] = useState("");
@@ -34,6 +34,12 @@ export default function MembershipPage() {
     }
   };
 
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [countdown]);
+
   const queryStatus = async () => {
     if (!phone || phone.length !== 11 || !code || code.length !== 6) return;
     setLoading(true);
@@ -56,30 +62,42 @@ export default function MembershipPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
+    <div className="page-dark">
       <Navbar />
       <div className="max-w-md mx-auto px-6 pt-24 pb-20">
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-semibold tracking-tight mb-3">会员状态</h1>
-          <p className="text-lg text-neutral-500">查询您的订阅情况</p>
-        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-4xl font-bold text-white mb-2">会员状态</h1>
+          <p className="text-white/40">查询您的订阅情况</p>
+        </motion.div>
 
         {step === "query" && (
-          <>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">手机号</label>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Phone input */}
+            <div className="card-dark p-5 mb-4">
+              <div className="section-title-dark mb-3">手机号</div>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
                 placeholder="请输入 11 位手机号"
                 maxLength={11}
-                className="w-full px-4 py-3 rounded-xl border border-neutral-200 text-base outline-none focus:border-blue-500"
+                className="input-dark"
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">验证码</label>
+            {/* Code input */}
+            <div className="card-dark p-5 mb-4">
+              <div className="section-title-dark mb-3">验证码</div>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -87,43 +105,66 @@ export default function MembershipPage() {
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="6 位验证码"
                   maxLength={6}
-                  className="flex-1 px-4 py-3 rounded-xl border border-neutral-200 text-base outline-none focus:border-blue-500"
+                  className="input-dark flex-1"
                 />
-                <button
+                <motion.button
                   onClick={sendCode}
                   disabled={codeLoading || !phone || phone.length !== 11 || countdown > 0}
-                  className="px-4 py-3 rounded-xl bg-neutral-100 text-neutral-600 text-sm font-medium whitespace-nowrap disabled:opacity-40 hover:bg-neutral-200 transition"
+                  className="px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
+                  style={{
+                    background: countdown > 0 ? "rgba(255,255,255,0.06)" : "rgba(0,200,136,0.12)",
+                    color: countdown > 0 ? "rgba(255,255,255,0.3)" : "#00c888",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    cursor: (codeLoading || !phone || phone.length !== 11 || countdown > 0) ? "not-allowed" : "pointer",
+                  }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   {countdown > 0 ? `${countdown}秒` : "获取验证码"}
-                </button>
+                </motion.button>
               </div>
             </div>
 
             {error && (
-              <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-xl mb-4 text-center text-sm"
+                style={{
+                  background: "rgba(239,68,68,0.08)",
+                  border: "1px solid rgba(239,68,68,0.2)",
+                  color: "#f87171",
+                }}
+              >
                 {error}
-              </div>
+              </motion.div>
             )}
 
-            <button
+            <motion.button
+              className="btn-primary-dark mb-4"
               onClick={queryStatus}
               disabled={loading || !phone || !code}
-              className="w-full py-4 rounded-full bg-blue-600 text-white text-lg font-medium disabled:opacity-50 hover:bg-blue-700 transition"
+              whileTap={{ scale: 0.98 }}
             >
               {loading ? "查询中..." : "查询会员状态"}
-            </button>
-          </>
+            </motion.button>
+          </motion.div>
         )}
 
         {step === "result" && status && (
-          <div className="space-y-5">
-            <div className="rounded-2xl border border-neutral-100 p-7">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-4"
+          >
+            {/* Status card */}
+            <div className="card-dark p-6">
               <div className="flex items-center justify-between mb-5">
-                <span className="text-base font-medium text-neutral-700">会员状态</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                <span className="text-sm text-white/50">会员状态</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${
                   status.hasMembership
-                    ? "bg-green-50 text-green-600 border border-green-200"
-                    : "bg-neutral-100 text-neutral-500"
+                    ? "bg-[rgba(0,200,136,0.1)] text-[#00c888] border-[rgba(0,200,136,0.3)]"
+                    : "bg-[rgba(255,255,255,0.04)] text-white/40 border-[rgba(255,255,255,0.1)]"
                 }`}>
                   {status.hasMembership ? "✓ 已开通" : "未开通"}
                 </span>
@@ -131,50 +172,43 @@ export default function MembershipPage() {
 
               {status.hasMembership ? (
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center py-3 border-b border-neutral-50">
-                    <span className="text-sm text-neutral-500">会员计划</span>
-                    <span className="font-medium">
-                      {status.plan === "yearly" ? "年度会员" : status.plan === "quarterly" ? "季度会员" : status.plan === "monthly" ? "月度会员" : status.plan}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-3">
-                    <span className="text-sm text-neutral-500">到期时间</span>
-                    <span className="font-medium">
-                      {status.expiresAt ? new Date(status.expiresAt).toLocaleDateString("zh-CN", {
-                        year: "numeric", month: "long", day: "numeric"
-                      }) : "—"}
-                    </span>
-                  </div>
+                  {[
+                    ["会员计划", status.plan === "yearly" ? "年度会员" : status.plan === "quarterly" ? "季度会员" : status.plan === "monthly" ? "月度会员" : status.plan ?? "—"],
+                    ["到期时间", status.expiresAt ? new Date(status.expiresAt).toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" }) : "—"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between items-center py-3 border-t border-white/5">
+                      <span className="text-sm text-white/40">{label}</span>
+                      <span className="text-sm text-white/80 font-medium">{value}</span>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-6">
                   <div className="text-4xl mb-3">🔒</div>
-                  <p className="text-neutral-500 mb-5">尚未开通会员</p>
-                  <Link
-                    href="/subscribe"
-                    className="inline-block px-8 py-3 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-                  >
+                  <p className="text-white/40 mb-5">尚未开通会员</p>
+                  <Link href="/subscribe" className="btn-primary-dark inline-block">
                     立即订阅
                   </Link>
                 </div>
               )}
             </div>
 
+            {/* Benefits card */}
             {status.hasMembership && (
-              <div className="rounded-2xl border border-neutral-100 p-7">
-                <h3 className="font-semibold text-base mb-4">会员权益</h3>
-                <ul className="space-y-3">
+              <div className="card-dark p-6">
+                <h3 className="text-white font-semibold text-base mb-5">会员权益</h3>
+                <ul className="space-y-4">
                   {[
                     ["🎙️", "专属音色克隆", "录制 30 秒，还原你的声音"],
                     ["💬", "无限对话", "文字 / 语音输入，想聊多久聊多久"],
                     ["🔊", "更多音色", "解锁小黎之外的声音"],
                     ["📱", "跨平台使用", "Web / App 随时切换"],
                   ].map(([icon, title, desc]) => (
-                    <li key={title} className="flex gap-3">
+                    <li key={title} className="flex gap-4">
                       <span className="text-xl mt-0.5">{icon}</span>
                       <div>
-                        <div className="font-medium text-sm">{title}</div>
-                        <div className="text-xs text-neutral-500">{desc}</div>
+                        <div className="text-white/80 font-medium text-sm">{title}</div>
+                        <div className="text-white/30 text-xs">{desc}</div>
                       </div>
                     </li>
                   ))}
@@ -182,16 +216,16 @@ export default function MembershipPage() {
               </div>
             )}
 
-            <button
+            <motion.button
+              className="btn-secondary-dark"
               onClick={() => { setStep("query"); setStatus(null); }}
-              className="w-full py-3 rounded-full border border-neutral-200 text-neutral-600 font-medium hover:border-neutral-300 transition"
+              whileTap={{ scale: 0.98 }}
             >
               重新查询
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
       </div>
-      <Footer />
     </div>
   );
 }

@@ -354,6 +354,82 @@ a {
 }
 
 /* ── Success page ── */
+/* ── Animated Background ── */
+@keyframes float-a {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.6; }
+  50% { transform: translateY(-30px) translateX(10px); opacity: 0.3; }
+}
+@keyframes float-b {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.5; }
+  33% { transform: translateY(-20px) translateX(-15px); opacity: 0.7; }
+  66% { transform: translateY(15px) translateX(8px); opacity: 0.3; }
+}
+@keyframes float-c {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.4; }
+  50% { transform: translateY(25px) translateX(-10px); opacity: 0.6; }
+}
+@keyframes float-d {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.2; }
+  50% { transform: translateY(-15px) translateX(12px); opacity: 0.5; }
+}
+.animate-float-a { animation: float-a 6s ease-in-out infinite; }
+.animate-float-b { animation: float-b 8s ease-in-out infinite; }
+.animate-float-c { animation: float-c 7s ease-in-out infinite; }
+.animate-float-d { animation: float-d 9s ease-in-out infinite; }
+
+/* ── Dark theme overrides for subscribe/membership pages ── */
+.page-dark {
+  background: #050508;
+  color: #e5e5e5;
+  min-height: 100vh;
+}
+.page-dark .card-dark {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+.page-dark .text-heading { color: #ffffff; }
+.page-dark .text-sub { color: rgba(255, 255, 255, 0.4); }
+.page-dark .text-label { color: rgba(255, 255, 255, 0.5); }
+.page-dark .input-dark {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.page-dark .input-dark:focus { border-color: rgba(0,200,136,0.5); }
+.page-dark .input-dark::placeholder { color: rgba(255,255,255,0.25); }
+.page-dark .btn-primary-dark {
+  display: block; width: 100%;
+  padding: 14px 24px; border-radius: 14px;
+  background: linear-gradient(135deg, #00c888, #00c8ff);
+  color: #fff; font-size: 17px; font-weight: 600;
+  border: none; cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s; text-align: center;
+}
+.page-dark .btn-primary-dark:hover:not(:disabled) { opacity: 0.9; transform: scale(1.01); }
+.page-dark .btn-primary-dark:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-dark .btn-secondary-dark {
+  display: block; width: 100%;
+  padding: 14px 24px; border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7); font-size: 17px; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
+  transition: background 0.2s; text-align: center;
+}
+.page-dark .btn-secondary-dark:hover { background: rgba(255,255,255,0.1); }
+.page-dark .section-title-dark {
+  padding: 8px 0 4px; font-size: 13px;
+  color: rgba(255,255,255,0.3); letter-spacing: 0.05em;
+}
+.page-dark .divider-dark { height: 1px; background: rgba(255,255,255,0.07); }
+
+/* ── Success page ── */
 .success-checkmark {
   width: 72px;
   height: 72px;
